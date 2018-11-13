@@ -62,6 +62,9 @@
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "school_bell_name";
 		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
 		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "school_bell_function_code";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
+		$z += 1;
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "school_bell_leg_a_type";
 		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
 		$z += 1;
@@ -107,4 +110,38 @@
 		$apps[$x]['db'][$y]['fields'][$z]['key']['type'] = "foreign";
 		$apps[$x]['db'][$y]['fields'][$z]['key']['reference']['table'] = "v_school_bells";
 		$apps[$x]['db'][$y]['fields'][$z]['key']['reference']['field'] = "school_bell_uuid";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_type";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Type of schedule. Could be regular or exclude";
+		// Next will go very cron-like definitions. Only difference is ranges are not accepted
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_min";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Minutes of the hour. 0-59";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_hour";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Hour. 0-23";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_dow";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Day of the Week. 0-6 (Sunday - Saturday, for compatibility)";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_mon";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Month. 1-12";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_dom";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Day of the month. 1-31";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_year";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Year. Will be set to max 5 from current";
+		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "v_school_bells_schedule_description";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Description of time entry";
 ?>
+
