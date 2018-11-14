@@ -22,7 +22,7 @@
 
 	Contributor(s):
 	Mark J Crane <markjcrane@fusionpbx.com>
-	Lewis Hallam <lewishallam80@gmail.com>
+	Igor Olhovskiy <igorolhovskiy@gmail.com>
 */
 
 //includes
@@ -30,10 +30,8 @@
 	require_once "resources/require.php";
 	require_once "resources/check_auth.php";
 
-	require_once "app/e911/api_calls.php";
-
 //check permissions
-	if (permission_exists('e911_add') || permission_exists('e911_edit')) {
+	if (permission_exists('school_bell_add') || permission_exists('school_bell_edit')) {
 		//access granted
 	}
 	else {
