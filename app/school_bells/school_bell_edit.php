@@ -43,60 +43,14 @@
 	$language = new text;
 	$text = $language->get();
 
-//action add, update or load from server
-
-
-    $c = 0;
-    $row_style["0"] = "row_style0";
-    $row_style["1"] = "row_style1";
+//action add, update
 
 //get http post variables and set them to php variables
 	if (count($_POST) > 0) {
 		//set the variables from the http values
-		$e911_did = check_str($_POST["e911_did"]);
-		$e911_address_1 = check_str($_POST["e911_address_1"]);
-		$e911_address_2 = check_str($_POST["e911_address_2"]);
-		$e911_city = check_str($_POST["e911_city"]);
-		$e911_state = check_str($_POST["e911_state"]);
-		$e911_zip = check_str($_POST["e911_zip"]);
-		$e911_zip_4 = check_str($_POST["e911_zip_4"]);
-		$e911_callername = check_str($_POST["e911_callername"]);
-		$e911_alert_email_enable = check_str($_POST["e911_alert_email_enable"]);
-		$e911_alert_email = check_str($_POST["e911_alert_email"]);
-		$e911_validated = check_str($_POST["e911_validated"]);
+		$school_bell_name = check_str($_POST["school_bell_name"]);
+		// ...
 	}
-
-    if (isset($_REQUEST["update_from_server"]) && isset($_REQUEST["e911_did"])) {
-        // TODO - override data with API request
-        $e911_did = check_str($_REQUEST["e911_did"]);
-        $e911_request_data = query_e911_data($e911_did);
-        if ($e911_request_data) {
-            $e911_address_1 = $e911_request_data['e911_address_1'];
-            $e911_address_2 = $e911_request_data['e911_address_2'];
-            $e911_city = $e911_request_data['e911_city'];
-            $e911_state = $e911_request_data['e911_state'];
-            $e911_zip = $e911_request_data['e911_zip'];
-            $e911_zip_4 = $e911_request_data['e911_zip_4'];
-            $e911_callername = $e911_request_data['e911_callername'];
-            $e911_validated = check_str($e911_request_data['e911_validated']);
-        } else {
-            $e911_address_1 = "";
-            $e911_address_2 = "";
-            $e911_city = "";
-            $e911_state = "";
-            $e911_zip = "";
-            $e911_zip_4 = "";
-            $e911_callername = "";
-            $e911_validated = "False";
-        }
-        $e911_request_data = query_e911_alert($e911_did);
-        if ($e911_request_data) {
-            $e911_alert_email_enable = "true";
-            $e911_alert_email = $e911_request_data;
-        } else {
-            $e911_alert_email_enable = "false";
-        }
-    }
 
     if (isset($_REQUEST["id"])) {
         $action = "update";
@@ -239,20 +193,30 @@
     	} //if ($_POST["persistformvar"] != "true")
     } // if (count($_POST) > 0 && strlen($_POST["persistformvar"]) == 0)
 
-//get the destinations
-	$sql = "select * from v_destinations ";
-	$sql .= "where domain_uuid = '".check_str($domain_uuid)."' ";
-	$sql .= "and destination_type = 'inbound' ";
-	$sql .= "order by destination_number asc ";
+//get the recordings
+	$sql = "SELECT recording_name, recording_filename FROM v_recordings";
+	$sql .= " WHERE domain_uuid = '".$domain_uuid."' ";
+	$sql .= " ORDER BY recording_name ASC";
 	$prep_statement = $db->prepare(check_sql($sql));
 	$prep_statement->execute();
-	$destinations = $prep_statement->fetchAll(PDO::FETCH_ASSOC);
-	unset ($sql, $prep_statement);
+	$recordings = $prep_statement->fetchAll(PDO::FETCH_ASSOC);
+
+//get the phrases
+	$sql = "SELECT * FROM v_phrases";
+	$sql .= " WHERE (domain_uuid = '".$domain_uuid."'";
+	$sql .= " OR domain_uuid IS NULL) ";
+	$prep_statement = $db->prepare(check_sql($sql));
+	$prep_statement->execute();
+	$phrases = $prep_statement->fetchAll(PDO::FETCH_NAMED);
+
+//get the sound files
+	$file = new file;
+	$sound_files = $file->sounds();
 
 //pre-populate the form
 	if (count($_GET) > 0 && $_POST["persistformvar"] != "true") {
 		$e911_uuid = check_str($_GET["id"]);
-		$sql = "select * from v_e911 ";
+		$sql = "select * from v_school_bells ";
 		$sql .= "where domain_uuid = '$domain_uuid' ";
 		$sql .= "and e911_uuid = '$e911_uuid' ";
 		$prep_statement = $db->prepare(check_sql($sql));
@@ -278,42 +242,10 @@
 //show the header
 	require_once "resources/header.php";
 	if ($action == "update") {
-		$document['title'] = $text['title-e911-edit'];
+		$document['title'] = $text['title-school_bells-edit'];
 	}
 	if ($action == "add") {
-		$document['title'] = $text['title-e911-add'];
-	}
-
-	if (if_group("superadmin")) {
-		echo "<script>\n";
-		echo "var Objs;\n";
-		echo "\n";
-		echo "function changeToInput(obj){\n";
-		echo "	tb=document.createElement('INPUT');\n";
-		echo "	tb.type='text';\n";
-		echo "	tb.name=obj.name;\n";
-		echo "	tb.setAttribute('class', 'formfld');\n";
-		//echo "	tb.setAttribute('style', 'width: 380px;');\n";
-		echo "	tb.value=obj.options[obj.selectedIndex].value;\n";
-		echo "	tbb=document.createElement('INPUT');\n";
-		echo "	tbb.setAttribute('class', 'btn');\n";
-		echo "	tbb.setAttribute('style', 'margin-left: 4px;');\n";
-		echo "	tbb.type='button';\n";
-		echo "	tbb.value=$('<div />').html('&#9665;').text();\n";
-		echo "	tbb.objs=[obj,tb,tbb];\n";
-		echo "	tbb.onclick=function(){ Replace(this.objs); }\n";
-		echo "	obj.parentNode.insertBefore(tb,obj);\n";
-		echo "	obj.parentNode.insertBefore(tbb,obj);\n";
-		echo "	obj.parentNode.removeChild(obj);\n";
-		echo "}\n";
-		echo "\n";
-		echo "function Replace(obj){\n";
-		echo "	obj[2].parentNode.insertBefore(obj[0],obj[2]);\n";
-		echo "	obj[0].parentNode.removeChild(obj[1]);\n";
-		echo "	obj[0].parentNode.removeChild(obj[2]);\n";
-		echo "}\n";
-		echo "</script>\n";
-		echo "\n";
+		$document['title'] = $text['title-school_bells-add'];
 	}
 
 //show the content
@@ -322,69 +254,17 @@
 	echo "<tr>\n";
 	echo "<td align='left' width='30%' nowrap='nowrap'><b>";
 	if ($action == "update") {
-		echo $text['header-e911-edit'];
+		echo $text['header-school_bells-edit'];
 	}
 	if ($action == "add") {
-		echo $text['header-e911-add'];
+		echo $text['header-school_bells-add'];
 	}
 	echo "</b></td>\n";
 	echo "<td width='70%' align='right'>";
 	echo "	<input type='button' class='btn' name='' alt='".$text['button-back']."' onclick=\"window.location='e911.php'\" value='".$text['button-back']."'>";
-    //echo "  <input type='submit' class='btn' name='update_from_server' alt='".$text['button-update_911']."' onclick=\"window.location='e911_update_from_server.php'\" value='".$text['button-update_911']."'>";
-    echo "  <input type='submit' name='update_from_server' class='btn' value='".$text['button-update_911']."'>\n";
 	echo "	<input type='submit' name='submit' class='btn' value='".$text['button-save']."'>\n";
 	echo "</td>\n";
 	echo "</tr>\n";
-
-/*
-    // DID
-	echo "<tr>\n";
-	echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-	echo "	".$text['label-e911_did']."\n";
-	echo "</td>\n";
-	echo "<td class='vtable' align='left'>\n";
-	echo "	<input class='formfld' type='text' name='e911_did' maxlength='255' value=\"$e911_did\">\n";
-	echo "<br />\n";
-	echo $text['description-e911_did']."\n";
-	echo "</td>\n";
-	echo "</tr>\n";
-
-*/
-
-    echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "    ".$text['label-e911_did']."\n";
-    echo "</td>\n";
-    echo "<td class='vtable' align='left'>\n";
-    if (count($destinations) > 0) {
-        echo "  <select name='e911_did' id='e911_did' class='formfld'>\n";
-        echo "  <option value=''></option>\n";
-        foreach ($destinations as $row) {
-			$row = array_map('escape', $row);
-
-            $tmp = $row["destination_caller_id_number"];
-            if(strlen($tmp) == 0){
-                $tmp = $row["destination_number"];
-            }
-            if(strlen($tmp) > 0){
-                if ($e911_did == $tmp) {
-                    echo "      <option value='".$tmp."' selected='selected'>".$tmp."</option>\n";
-                }
-                else {
-                    echo "      <option value='".$tmp."'>".$tmp."</option>\n";
-                }
-            }
-        }
-        echo "      </select>\n";
-        echo "<br />\n";
-        echo $text['description-e911_did']."\n";
-    }
-    else {
-        echo "  <input type=\"button\" class=\"btn\" name=\"\" alt=\"".$text['button-add']."\" onclick=\"window.location='".PROJECT_PATH."/app/destinations/destinations.php'\" value='".$text['button-add']."'>\n";
-    }
-    unset ($prep_statement);
-    echo "</td>\n";
-    echo "</tr>\n";
 
     // Address 1
 	echo "<tr>\n";
