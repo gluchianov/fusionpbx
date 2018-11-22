@@ -77,6 +77,9 @@
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "school_bell_leg_b_data";
 		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
 		$z += 1;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "school_bell_timeout";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "numeric";
+		$z += 1;
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "school_bell_timezone";
 		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
 		$z += 1;

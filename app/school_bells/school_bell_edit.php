@@ -54,7 +54,7 @@
 
     if (isset($_REQUEST["id"])) {
         $action = "update";
-        $e911_uuid = check_str($_REQUEST["id"]);
+        $school_bell_uuid = check_str($_REQUEST["id"]);
     }
     else {
         $action = "add";
@@ -64,7 +64,7 @@
 
     	$msg = '';
     	if ($action == "update") {
-    		$e911_uuid = check_str($_POST["e911_uuid"]);
+    		$school_bell_uuid = check_str($_POST["school_bell_uuid"]);
     	}
 
     	//check for all required data
@@ -218,13 +218,13 @@
 		$e911_uuid = check_str($_GET["id"]);
 		$sql = "select * from v_school_bells ";
 		$sql .= "where domain_uuid = '$domain_uuid' ";
-		$sql .= "and e911_uuid = '$e911_uuid' ";
+		$sql .= "and school_bell_uuid = '$school_bell_uuid' ";
 		$prep_statement = $db->prepare(check_sql($sql));
 		$prep_statement->execute();
 		$result = $prep_statement->fetchAll();
 		foreach ($result as &$row) {
             //set the php variables
-            $e911_did = $row["e911_did"];
+            $school_bell_name = $row["school_bell_name"];
             $e911_address_1 = $row["e911_address_1"];
             $e911_address_2 = $row["e911_address_2"];
             $e911_city = $row["e911_city"];
@@ -261,56 +261,161 @@
 	}
 	echo "</b></td>\n";
 	echo "<td width='70%' align='right'>";
-	echo "	<input type='button' class='btn' name='' alt='".$text['button-back']."' onclick=\"window.location='e911.php'\" value='".$text['button-back']."'>";
+	echo "	<input type='button' class='btn' name='' alt='".$text['button-back']."' onclick=\"window.location='school_bells.php'\" value='".$text['button-back']."'>";
 	echo "	<input type='submit' name='submit' class='btn' value='".$text['button-save']."'>\n";
 	echo "</td>\n";
 	echo "</tr>\n";
 
-    // Address 1
+    // Name
 	echo "<tr>\n";
 	echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-	echo "	".$text['label-e911_address_1']."\n";
+	echo "	".$text['label-school_bell_name']."\n";
 	echo "</td>\n";
 	echo "<td class='vtable' align='left'>\n";
-	echo "	<input class='formfld' type='text' name='e911_address_1' maxlength='255' value=\"" . escape($e911_address_1) . "\">\n";
+	echo "	<input class='formfld' type='text' name='school_bell_name' maxlength='255' value=\"" . escape($school_bell_name) . "\">\n";
 	echo "<br />\n";
-	echo $text['description-e911_address_1']."\n";
+	echo $text['description-school_bell_name']."\n";
 	echo "</td>\n";
 	echo "</tr>\n";
 
-    // Address 2
+    // Leg A extension
     echo "<tr>\n";
     echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "  ".$text['label-e911_address_2']."\n";
+    echo "  ".$text['label-school_bell_leg_a_data']."\n";
     echo "</td>\n";
     echo "<td class='vtable' align='left'>\n";
-    echo "  <input class='formfld' type='text' name='e911_address_2' maxlength='255' value=\"" . escape($e911_address_2) . "\">\n";
+    echo "  <input class='formfld' type='text' name='school_bell_leg_a_data' maxlength='255' value=\"" . escape($school_bell_leg_a_data) . "\">\n";
     echo "<br />\n";
-    echo $text['description-e911_address_2']."\n";
+    echo $text['description-school_bell_leg_a_data']."\n";
     echo "</td>\n";
     echo "</tr>\n";
 
-    // City
+    // File to play
 	echo "<tr>\n";
-	echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-	echo "	".$text['label-e911_city']."\n";
+	echo "<td class='vncellreq' valign='top' align='left' nowrap>\n";
+	echo "	".$text['label-school_bell_leg_b_data']."\n";
 	echo "</td>\n";
 	echo "<td class='vtable' align='left'>\n";
-	echo "	<input class='formfld' type='text' name='e911_city' maxlength='255' value=\"" . escape($e911_city) . "\">\n";
-	echo "<br />\n";
-	echo $text['description-e911_city']."\n";
+	if (if_group("superadmin")) {
+		$destination_id = "school_bell_leg_b_data";
+		$script = "<script>\n";
+		$script .= "var objs;\n";
+		$script .= "\n";
+		$script .= "function changeToInput".$destination_id."(obj){\n";
+		$script .= "	tb=document.createElement('INPUT');\n";
+		$script .= "	tb.type='text';\n";
+		$script .= "	tb.name=obj.name;\n";
+		$script .= "	tb.className='formfld';\n";
+		$script .= "	tb.setAttribute('id', '".$destination_id."');\n";
+		$script .= "	tb.setAttribute('style', '".$select_style."');\n";
+		if ($on_change != '') {
+			$script .= "	tb.setAttribute('onchange', \"".$on_change."\");\n";
+			$script .= "	tb.setAttribute('onkeyup', \"".$on_change."\");\n";
+		}
+		$script .= "	tb.value=obj.options[obj.selectedIndex].value;\n";
+		$script .= "	document.getElementById('btn_select_to_input_".$destination_id."').style.visibility = 'hidden';\n";
+		$script .= "	tbb=document.createElement('INPUT');\n";
+		$script .= "	tbb.setAttribute('class', 'btn');\n";
+		$script .= "	tbb.setAttribute('style', 'margin-left: 4px;');\n";
+		$script .= "	tbb.type='button';\n";
+		$script .= "	tbb.value=$('<div />').html('&#9665;').text();\n";
+		$script .= "	tbb.objs=[obj,tb,tbb];\n";
+		$script .= "	tbb.onclick=function(){ Replace".$destination_id."(this.objs); }\n";
+		$script .= "	obj.parentNode.insertBefore(tb,obj);\n";
+		$script .= "	obj.parentNode.insertBefore(tbb,obj);\n";
+		$script .= "	obj.parentNode.removeChild(obj);\n";
+		$script .= "	Replace".$destination_id."(this.objs);\n";
+		$script .= "}\n";
+		$script .= "\n";
+		$script .= "function Replace".$destination_id."(obj){\n";
+		$script .= "	obj[2].parentNode.insertBefore(obj[0],obj[2]);\n";
+		$script .= "	obj[0].parentNode.removeChild(obj[1]);\n";
+		$script .= "	obj[0].parentNode.removeChild(obj[2]);\n";
+		$script .= "	document.getElementById('btn_select_to_input_".$destination_id."').style.visibility = 'visible';\n";
+		if ($on_change != '') {
+			$script .= "	".$on_change.";\n";
+		}
+		$script .= "}\n";
+		$script .= "</script>\n";
+		$script .= "\n";
+		echo $script;
+	}
+	echo "<select name='school_bell_leg_b_data' id='school_bell_leg_b_data' class='formfld'>\n";
+	echo "	<option></option>\n";
+	//misc optgroup
+	if (if_group("superadmin")) {
+		echo "<optgroup label='Misc'>\n";
+		echo "	<option value='say:'>say:</option>\n";
+		echo "	<option value='tone_stream:'>tone_stream:</option>\n";
+		echo "</optgroup>\n";
+	}
+	//recordings
+	$tmp_selected = false;
+	if (is_array($recordings)) {
+		echo "<optgroup label='Recordings'>\n";
+		foreach ($recordings as &$row) {
+			$recording_name = $row["recording_name"];
+			$recording_filename = $row["recording_filename"];
+			if ($ivr_menu_greet_long == $_SESSION['switch']['recordings']['dir']."/".$_SESSION['domain_name']."/".$recording_filename && strlen($ivr_menu_greet_long) > 0) {
+				$tmp_selected = true;
+				echo "	<option value='".escape($_SESSION['switch']['recordings']['dir'])."/".escape($_SESSION['domain_name'])."/".escape($recording_filename)."' selected='selected'>".escape($recording_name)."</option>\n";
+			} else if ($ivr_menu_greet_long == $recording_filename && strlen($ivr_menu_greet_long) > 0) {
+				$tmp_selected = true;
+				echo "	<option value='".escape($recording_filename)."' selected='selected'>".escape($recording_name)."</option>\n";
+			} else {
+				echo "	<option value='".escape($recording_filename)."'>".escape($recording_name)."</option>\n";
+			}
+		}
+		echo "</optgroup>\n";
+	}
+	//phrases
+	if (is_array($phrases)) {
+		echo "<optgroup label='Phrases'>\n";
+		foreach ($phrases as &$row) {
+			if ($ivr_menu_greet_long == "phrase:".$row["phrase_uuid"]) {
+				$tmp_selected = true;
+				echo "	<option value='phrase:".escape($row["phrase_uuid"])."' selected='selected'>".escape($row["phrase_name"])."</option>\n";
+			} else {
+				echo "	<option value='phrase:".escape($row["phrase_uuid"])."'>".escape($row["phrase_name"])."</option>\n";
+			}
+		}
+		unset ($prep_statement);
+		echo "</optgroup>\n";
+	}
+	//select
+	if (if_group("superadmin")) {
+		if (!$tmp_selected && strlen($school_bell_leg_b_data) > 0) {
+			echo "<optgroup label='Selected'>\n";
+			if (file_exists($_SESSION['switch']['recordings']['dir']."/".$_SESSION['domain_name']."/".$school_bell_leg_b_data)) {
+				echo "	<option value='".escape($_SESSION['switch']['recordings']['dir'])."/".escape($_SESSION['domain_name'])."/".escape($school_bell_leg_b_data)."' selected='selected'>".escape($school_bell_leg_b_data)."</option>\n";
+			} else if (substr($school_bell_leg_b_data, -3) == "wav" || substr($school_bell_leg_b_data, -3) == "mp3") {
+				echo "	<option value='".escape($school_bell_leg_b_data)."' selected='selected'>".escape($school_bell_leg_b_data)."</option>\n";
+			} else {
+				echo "	<option value='".escape($school_bell_leg_b_data)."' selected='selected'>".escape($school_bell_leg_b_data)."</option>\n";
+			}
+			echo "</optgroup>\n";
+		}
+		unset($tmp_selected);
+	}
+	echo "	</select>\n";
+	if (if_group("superadmin")) {
+		echo "<input type='button' id='btn_select_to_input_".escape($destination_id)."' class='btn' name='' alt='back' onclick='changeToInput".escape($destination_id)."(document.getElementById(\"".escape($destination_id)."\"));this.style.visibility = \"hidden\";' value='&#9665;'>";
+		unset($destination_id);
+	}
+	echo "	<br />\n";
+	echo $text['description-school_bell_leg_b_data']."\n";
 	echo "</td>\n";
 	echo "</tr>\n";
 
-    // State
+    // Timeout
     echo "<tr>\n";
     echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "  ".$text['label-e911_state']."\n";
+    echo "  ".$text['label-school_bell_timeout']."\n";
     echo "</td>\n";
     echo "<td class='vtable' align='left'>\n";
-    echo "  <input class='formfld' type='text' name='e911_state' maxlength='255' value=\"" . escape($e911_state) . "\">\n";
+    echo "  <input class='formfld' type='number' name='school_bell_timeout' maxlength='3' value=\"" . escape($school_bell_timeout) . "\">\n";
     echo "<br />\n";
-    echo $text['description-e911_state']."\n";
+    echo $text['description-school_bell_timeout']."\n";
     echo "</td>\n";
     echo "</tr>\n";
 
