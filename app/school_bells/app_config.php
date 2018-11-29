@@ -90,7 +90,7 @@
 		$y += 1;
 		$apps[$x]['db'][$y]['table']['name'] = "v_school_bells_schedule";
 		$apps[$x]['db'][$y]['table']['parent'] = "v_school_bells";
-		$z=0;
+		$z = 0;
 
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "domain_uuid";
 		$apps[$x]['db'][$y]['fields'][$z]['type']['pgsql'] = "uuid";

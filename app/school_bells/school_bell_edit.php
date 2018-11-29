@@ -409,7 +409,7 @@
 
     // Timeout
     echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
+    echo "<td class='vncell' valign='top' align='left' nowrap='nowrap'>\n";
     echo "  ".$text['label-school_bell_timeout']."\n";
     echo "</td>\n";
     echo "<td class='vtable' align='left'>\n";
@@ -419,101 +419,89 @@
     echo "</td>\n";
     echo "</tr>\n";
 
-    // Zip
+    // Timezone
     echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "  ".$text['label-e911_zip']."\n";
+    echo "<td class='vncell' valign='top' align='left' nowrap='nowrap'>\n";
+    echo "  ".$text['label-school_bell_timezone']."\n";
+    echo "</td>\n";
+	echo "<td class='vtable' align='left'>\n";
+	echo "		<select class='formfld' id='school_bell_timezone' name='school_bell_timezone' style=''>\n";
+	$time_zone_identifiers = DateTimeZone::listIdentifiers();
+	$previous_category = '';
+	$x = 0;
+	foreach ($time_zone_identifiers as $key => $val) {
+		$time_zone = explode("/", $val);
+		$category = $time_zone[0];
+		if ($category != $previous_category) {
+			if ($x > 0) {
+				echo "		</optgroup>\n";
+			}
+			echo "		<optgroup label='".$category."'>\n";
+		}
+		if (strlen($val) > 0) {
+			$time_zone_offset = get_time_zone_offset($val)/3600;
+			$time_zone_offset_hours = floor($time_zone_offset);
+			$time_zone_offset_minutes = ($time_zone_offset - $time_zone_offset_hours) * 60;
+			$time_zone_offset_minutes = number_pad($time_zone_offset_minutes, 2);
+			if ($time_zone_offset > 0) {
+				$time_zone_offset_hours = number_pad($time_zone_offset_hours, 2);
+				$time_zone_offset_hours = "+".$time_zone_offset_hours;
+			} else {
+				$time_zone_offset_hours = str_replace("-", "", $time_zone_offset_hours);
+				$time_zone_offset_hours = "-".number_pad($time_zone_offset_hours, 2);
+			}
+		}
+		if ($val == $school_bell_timezone) {
+			echo "			<option value='".$val."' selected='selected'>(UTC ".$time_zone_offset_hours.":".$time_zone_offset_minutes.") ".$val."</option>\n";
+		} else {
+			echo "			<option value='".$val."'>(UTC ".$time_zone_offset_hours.":".$time_zone_offset_minutes.") ".$val."</option>\n";
+		}
+		$previous_category = $category;
+		$x += 1;
+	}
+	unset($x);
+	echo "		</select>\n";
+    echo "<br />\n";
+    echo $text['description-timezone']."\n";
+    echo "</td>\n";
+    echo "</tr>\n";
+
+
+    // Description
+    echo "<tr>\n";
+    echo "<td class='vncell' valign='top' align='left' nowrap='nowrap'>\n";
+    echo "  ".$text['label-description']."\n";
     echo "</td>\n";
     echo "<td class='vtable' align='left'>\n";
-    echo "  <input class='formfld' type='text' name='e911_zip' maxlength='255' value=\"" . escape($e911_zip) . "\">\n";
+    echo "  <input class='formfld' type='text' name='school_bell_description' maxlength='255' value=\"" . escape($school_bell_description) . "\">\n";
     echo "<br />\n";
-    echo $text['description-e911_zip']."\n";
+    echo $text['description-school_bell_description']."\n";
     echo "</td>\n";
     echo "</tr>\n";
 
 
-    // Zip+4
-    echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "  ".$text['label-e911_zip_4']."\n";
+	echo "<tr><td colspan='2'><br /></td></tr>\n";
+
+	// Scheduler
+   	echo "<tr>\n";
+    echo "<td class='vncell' valign='top' align='left' nowrap='nowrap'>\n";
+    echo "  ".$text['label-school_bells_scheduler']."\n";
     echo "</td>\n";
     echo "<td class='vtable' align='left'>\n";
-    echo "  <input class='formfld' type='text' name='e911_zip_4' maxlength='255' value=\"" . escape($e911_zip_4) . "\">\n";
     echo "<br />\n";
-    echo $text['description-e911_zip_4']."\n";
+    echo $text['description-school_bells_scheduler']."\n";
     echo "</td>\n";
     echo "</tr>\n";
 
-    // Callername
-    echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "  ".$text['label-e911_callername']."\n";
-    echo "</td>\n";
-    echo "<td class='vtable' align='left'>\n";
-	echo "  <input class='formfld' type='text' name='e911_callername' maxlength='255' value=\"" . escape($e911_callername) . "\">\n";
-    echo "<br />\n";
-    echo $text['description-e911_callername']."\n";
-    echo "</td>\n";
-    echo "</tr>\n";
 
-    // Alert email
-    echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "  ".$text['label-e911_alert_email']."\n";
-    echo "</td>\n";
-    echo "<td class='vtable' align='left'>\n";
-    echo "  <input class='formfld' type='text' name='e911_alert_email' maxlength='255' value=\"" . escape($e911_alert_email) . "\">\n";
-    echo "<br />\n";
-    echo $text['description-e911_alert_email']."\n";
-    echo "</td>\n";
-    echo "</tr>\n";
+	echo "<tr><td colspan='2'><br /></td></tr>\n";
 
-    // Alert email enable
-    echo "<tr>\n";
-    echo "<td class='vncellreq' valign='top' align='left' nowrap='nowrap'>\n";
-    echo "    ".$text['label-e911_alert_email_enable']."\n";
-    echo "</td>\n";
-    echo "<td class='vtable' align='left'>\n";
-    echo "    <select class='formfld' name='e911_alert_email_enable'>\n";
-    if ($e911_alert_email_enable == "true") {
-        echo "    <option value='true' selected='selected'>".$text['label-true']."</option>\n";
-    }
-    else {
-        echo "    <option value='true'>".$text['label-true']."</option>\n";
-    }
-    if ($e911_alert_email_enable == "false") {
-        echo "    <option value='false' selected >".$text['label-false']."</option>\n";
-    }
-    else {
-        echo "    <option value='false'>".$text['label-false']."</option>\n";
-    }
-    echo "    </select>\n";
-    echo "<br />\n";
-    echo $text['description-e911_alert_email_enable']."\n";
-    echo "</td>\n";
-    echo "</tr>\n";
-
-    // Validated
-    echo "<tr>\n";
-    echo "<td>\n";
-    echo "<center><b>";
-    if ($e911_validated == "") {
-        echo "No information\n";
-    } else {
-        echo "$e911_validated\n";
-    }
-    echo "</b></center>";
-    echo "<br />\n";
-    echo "<br />\n";
-//    echo $sql_update;
-    echo "</td>\n";
-    echo "</tr>\n";
+	// Scheduler Exclude
 
 	echo "	<tr>\n";
 	echo "		<td colspan='2' align='right'>\n";
 	if ($action == "update") {
-		echo "		<input type='hidden' name='e911_uuid' value='" . escape($e911_uuid) . "'>\n";
-        echo "      <input type='hidden' name='e911_validated' value='" . escape($e911_validated) . "'>\n";
+		echo "		<input type='hidden' name='school_bell_uuid' value='" . escape($school_bell_uuid) . "'>\n";
 	}
 	echo "			<br>";
 	echo "			<input type='submit' name='submit' class='btn' value='".$text['button-save']."'>\n";
