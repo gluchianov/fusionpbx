@@ -61,7 +61,7 @@ if (!class_exists('bulk_import_extensions_options_selector')) {
 
         public function draw_selector($name = '', $selected_id = 0) {
             $i = 0;
-            $selector_text .= "<select name = '" . $name . "' id = '" . $name . "' class='formfld'>";
+            $selector_text = "<select name = '" . $name . "' id = '" . $name . "' class='formfld'>";
             $selector_text .= "<option value=''></option>\n";
             foreach ($this->optgroups as $optgroup_label => $optgroup_data) {
                 $selector_text .= "<optgroup label = '" . $optgroup_label . "'>\n";
